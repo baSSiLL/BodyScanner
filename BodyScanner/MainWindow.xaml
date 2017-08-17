@@ -5,8 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BodyScanner"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+        Title="{Binding WindowTitle}" Height="600" Width="800"
+        WindowState="Maximized"
+        FontSize="24">
+
+    <Window.Resources>
+        <local:BooleanToObjectConverter x:Key="VcBoolInv" FalseValue="True" TrueValue="False"/>
+    </Window.Resources>
+    
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Margin="10"
+                       TextWrapping="Wrap"
+                       Text="{Binding Prompt}"/>
+            <TextBox Grid.Row="1" Grid.Column="0" Margin="10"
+                     Name="personName" x:FieldModifier="private"
+                     Text="{Binding PersonName, UpdateSourceTrigger=PropertyChanged}"
+                     IsEnabled="{Binding IsScanning, Converter={StaticResource VcBoolInv}}"/>
+            <Button Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                    Margin="10" Padding="10,5"
+                    Command="{Binding StartScanningCommand}">
+                START SCANNING
+            </Button>
+        </Grid>
+        <Border Background="Black">
+            <Image Name="depthImage" x:FieldModifier="private"
+                   Stretch="Uniform"/>
+        </Border>
+    </DockPanel>
 </Window>
