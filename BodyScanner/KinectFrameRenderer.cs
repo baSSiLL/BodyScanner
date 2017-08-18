@@ -40,6 +40,11 @@ namespace BodyScanner
 
         public event EventHandler BitmapUpdated;
 
+        private void RaiseBitmapUpdated()
+        {
+            BitmapUpdated?.Invoke(this, EventArgs.Empty);
+        }
+
         private void Reader_FrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
             var frame = e.FrameReference.AcquireFrame();
@@ -48,8 +53,8 @@ namespace BodyScanner
                 using (frame)
                     frame.CopyFrameDataToArray(frameData);
 
-                Task.Run(() => FillBitmap()).
-                    ContinueWith(_ => syncContext.Post(__ => BitmapUpdated?.Invoke(this, EventArgs.Empty), null));
+                Task.Run(new Action(FillBitmap)).
+                    ContinueWith(_ => syncContext.Post(RaiseBitmapUpdated));
             }
         }
 

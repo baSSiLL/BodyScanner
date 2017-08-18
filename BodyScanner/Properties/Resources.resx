@@ -124,6 +124,10 @@
     <value>Error initializing application:
 {0}</value>
   </data>
+  <data name="InitScanError" xml:space="preserve">
+    <value>Error initializing scanning:
+{0}</value>
+  </data>
   <data name="KinectNotAvailable" xml:space="preserve">
     <value>Kinect sensor is not available.</value>
   </data>
@@ -138,5 +142,12 @@
   </data>
   <data name="PromptScanCompleted" xml:space="preserve">
     <value>Scanning completed</value>
+  </data>
+  <data name="PromptScanning" xml:space="preserve">
+    <value>Scanning in process... Please turn around slowly</value>
+  </data>
+  <data name="ScanningStatus" xml:space="preserve">
+    <value>Scanned frames: {0}
+Alignment energy: {1}</value>
   </data>
 </root>

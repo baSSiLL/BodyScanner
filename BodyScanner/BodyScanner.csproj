@@ -70,9 +70,13 @@
     <Compile Include="DepthToColorConverter.cs" />
     <Compile Include="KinectFrameRenderer.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ReconstructionController.cs" />
     <Compile Include="ScanningEngine.cs" />
+    <Compile Include="SharedCriticalSection.cs" />
+    <Compile Include="SynchronizationContextExtensions.cs" />
     <Compile Include="UserInteractionService.cs" />
     <Compile Include="ViewModelBase.cs" />
+    <Compile Include="WriteableBitmapHolder.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -24,8 +24,10 @@ namespace BodyScanner
             startScanningCommand = new DelegateCommand(DoScanning, CanStartScanning);
 
             Prompt = Properties.Resources.PromptEnterName;
+            ShowDepthBitmap = true;
 
             renderer.BitmapUpdated += Renderer_BitmapUpdated;
+            engine.ScanUpdated += Engine_ScanUpdated;
         }
 
         public string WindowTitle => Properties.Resources.ApplicationName;
@@ -62,7 +64,12 @@ namespace BodyScanner
 
             IsScanning = true;
 
-            await AwaitForStart(5);
+            await AwaitForStart(2);
+
+            ShowDepthBitmap = false;
+            ShowScanBitmap = true;
+            ScanningStatus = null;
+            Prompt = Properties.Resources.PromptScanning;
 
             try
             {
@@ -74,12 +81,16 @@ namespace BodyScanner
                 uis.ShowError(ex.Message);
                 Prompt = Properties.Resources.PromptScanAborted;
             }
+
+            ShowScanBitmap = false;
+            ShowDepthBitmap = true;
             IsScanning = false;
 
             await Task.Delay(TimeSpan.FromSeconds(5));
 
             if (!IsScanning)
             {
+                ScanningStatus = null;
                 Prompt = Properties.Resources.PromptEnterName;
             }
         }
@@ -100,7 +111,14 @@ namespace BodyScanner
         }
 
 
-        public byte[] DepthBitmap => renderer.Bitmap;
+        public bool ShowDepthBitmap
+        {
+            get { return showDepthBitmap; }
+            private set { SetPropertyValue(value, ref showDepthBitmap); }
+        }
+        private bool showDepthBitmap;
+
+        public Array DepthBitmapBgra => renderer.Bitmap;
 
         public int DepthBitmapWidth => renderer.BitmapWidth;
 
@@ -108,7 +126,34 @@ namespace BodyScanner
 
         private void Renderer_BitmapUpdated(object sender, EventArgs e)
         {
-            OnPropertyChanged(nameof(DepthBitmap));
+            OnPropertyChanged(nameof(DepthBitmapBgra));
+        }
+
+
+        public bool ShowScanBitmap
+        {
+            get { return showScanBitmap; }
+            private set { SetPropertyValue(value, ref showScanBitmap); }
+        }
+        private bool showScanBitmap;
+
+        public Array ScanBitmapBgra => engine.ScanBitmap;
+
+        public int ScanBitmapWidth => engine.ScanBitmapWidth;
+
+        public int ScanBitmapHeight => engine.ScanBitmapHeight;
+
+        public string ScanningStatus
+        {
+            get { return scanningStatus; }
+            private set { SetPropertyValue(value, ref scanningStatus); }
+        }
+        private string scanningStatus;
+
+        private void Engine_ScanUpdated(object sender, EventArgs e)
+        {
+            ScanningStatus = string.Format(Properties.Resources.ScanningStatus, engine.ScannedFramesCount, engine.LastAlignmentEnergy);
+            OnPropertyChanged(nameof(ScanBitmapBgra));
         }
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)

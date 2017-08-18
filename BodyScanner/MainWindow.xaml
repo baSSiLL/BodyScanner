@@ -10,6 +10,7 @@
         FontSize="24">
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="VcBoolVis"/>
         <local:BooleanToObjectConverter x:Key="VcBoolInv" FalseValue="True" TrueValue="False"/>
     </Window.Resources>
     
@@ -37,8 +38,17 @@
             </Button>
         </Grid>
         <Border Background="Black">
-            <Image Name="depthImage" x:FieldModifier="private"
-                   Stretch="Uniform"/>
+            <Grid>
+                <Image Name="depthImage" x:FieldModifier="private"
+                       Stretch="Uniform"
+                       Visibility="{Binding ShowDepthBitmap, Converter={StaticResource VcBoolVis}}"/>
+                <Image Name="scanImage" x:FieldModifier="private"
+                       Stretch="Uniform"
+                       Visibility="{Binding ShowScanBitmap, Converter={StaticResource VcBoolVis}}"/>
+                <TextBlock FontSize="18" Background="White" Foreground="Black"
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="10"
+                           Text="{Binding ScanningStatus}"/>
+            </Grid>
         </Border>
     </DockPanel>
 </Window>

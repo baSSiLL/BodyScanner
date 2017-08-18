@@ -19,7 +19,7 @@ namespace BodyScanner.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -80,6 +80,16 @@ namespace BodyScanner.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error initializing scanning:
+        ///{0}.
+        /// </summary>
+        internal static string InitScanError {
+            get {
+                return ResourceManager.GetString("InitScanError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Kinect sensor is not available..
         /// </summary>
         internal static string KinectNotAvailable {
@@ -121,6 +131,25 @@ namespace BodyScanner.Properties {
         internal static string PromptScanCompleted {
             get {
                 return ResourceManager.GetString("PromptScanCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scanning in process... Please turn around slowly.
+        /// </summary>
+        internal static string PromptScanning {
+            get {
+                return ResourceManager.GetString("PromptScanning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scanned frames: {0}
+        ///Alignment energy: {1}.
+        /// </summary>
+        internal static string ScanningStatus {
+            get {
+                return ResourceManager.GetString("ScanningStatus", resourceCulture);
             }
         }
     }

@@ -44,7 +44,7 @@ namespace BodyScanner
             SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
 
             var sensor = CreateAndOpenSensor();
-            var engine = new ScanningEngine(sensor);
+            var engine = new ScanningEngine(sensor, () => new ReconstructionController(sensor));
             var renderer = new KinectFrameRenderer(sensor, new DepthToColorConverter());
             var uis = new UserInteractionService();
             return new AppViewModel(engine, renderer, uis);

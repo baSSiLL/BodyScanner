@@ -9,7 +9,8 @@ namespace BodyScanner
     /// </summary>
     public partial class MainWindow : Window
     {
-        private WriteableBitmap depthBitmap;
+        private readonly WriteableBitmapHolder depthBitmapHolder = new WriteableBitmapHolder();
+        private readonly WriteableBitmapHolder scanBitmapHolder = new WriteableBitmapHolder();
 
         public MainWindow()
         {
@@ -24,9 +25,6 @@ namespace BodyScanner
         {
             personName.Focus();
 
-            depthBitmap = new WriteableBitmap(ViewModel.DepthBitmapWidth, ViewModel.DepthBitmapHeight, 96, 96, PixelFormats.Bgr32, null);
-            depthImage.Source = depthBitmap;
-
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
@@ -34,20 +32,36 @@ namespace BodyScanner
         {
             switch (e.PropertyName)
             {
-                case nameof(AppViewModel.DepthBitmap):
+                case nameof(AppViewModel.DepthBitmapBgra):
                     UpdateDepthBitmap();
+                    break;
+                case nameof(AppViewModel.ScanBitmapBgra):
+                    UpdateScanBitmap();
                     break;
             }
         }
 
         private void UpdateDepthBitmap()
         {
-            if (ViewModel.DepthBitmap != null)
+            if (ViewModel.DepthBitmapBgra != null)
             {
-                var rect = new Int32Rect(0, 0, depthBitmap.PixelWidth, depthBitmap.PixelHeight);
-                depthBitmap.Lock();
-                depthBitmap.WritePixels(rect, ViewModel.DepthBitmap, depthBitmap.PixelWidth * depthBitmap.Format.BitsPerPixel / 8, 0);
-                depthBitmap.Unlock();
+                var changed = depthBitmapHolder.WritePixels(ViewModel.DepthBitmapWidth, ViewModel.DepthBitmapHeight, ViewModel.DepthBitmapBgra);
+                if (changed)
+                {
+                    depthImage.Source = depthBitmapHolder.Bitmap;
+                }
+            }
+        }
+
+        private void UpdateScanBitmap()
+        {
+            if (ViewModel.ScanBitmapBgra != null)
+            {
+                var changed = scanBitmapHolder.WritePixels(ViewModel.ScanBitmapWidth, ViewModel.ScanBitmapHeight, ViewModel.ScanBitmapBgra);
+                if (changed)
+                {
+                    scanImage.Source = scanBitmapHolder.Bitmap;
+                }
             }
         }
     }
