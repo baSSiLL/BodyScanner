@@ -73,6 +73,7 @@ namespace BodyScanner
             {
                 await engine.Run();
                 Prompt = Properties.Resources.PromptScanCompleted;
+                FloorNormal = new Vector3D(engine.FloorNormal.X, engine.FloorNormal.Y, engine.FloorNormal.Z);
                 Body3DModel = engine.ScannedMesh == null
                     ? null
                     : MeshConverter.Convert(engine.ScannedMesh);
@@ -145,6 +146,13 @@ namespace BodyScanner
             private set { SetPropertyValue(value, ref body3DModel); }
         }
         private MeshGeometry3D body3DModel;
+
+        public Vector3D FloorNormal
+        {
+            get { return floorNormal; }
+            private set { SetPropertyValue(value, ref floorNormal); }
+        }
+        private Vector3D floorNormal;
 
         public bool ShowBodyModel
         {

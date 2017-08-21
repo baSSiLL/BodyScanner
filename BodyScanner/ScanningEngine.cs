@@ -31,6 +31,8 @@ namespace BodyScanner
 
         public Mesh ScannedMesh { get; private set; }
 
+        public Vector3 FloorNormal { get; private set; }
+
         public event EventHandler ScanUpdated;
 
         public event EventHandler ScanStarted;
@@ -77,6 +79,9 @@ namespace BodyScanner
 
         private void Controller_ReconstructionStarted(object sender, EventArgs e)
         {
+            var controller = (ReconstructionController)sender;
+            FloorNormal = controller.FloorNormal;
+
             scanEndTime = DateTime.UtcNow.Add(SCAN_DURATION);
 
             ScanStarted?.Invoke(this, EventArgs.Empty);

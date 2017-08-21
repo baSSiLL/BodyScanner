@@ -80,6 +80,8 @@ namespace BodyScanner
 
         public event EventHandler ReconstructionStarted;
 
+        public Vector3 FloorNormal { get; private set; }
+
         public ThreadSafeBitmap SurfaceBitmap { get; }
 
         public event EventHandler SurfaceBitmapUpdated;
@@ -114,7 +116,10 @@ namespace BodyScanner
                         {
                             SelectBodyToReconstruct(bodyFrame);
                             if (IsReconstructing)
-                                syncContext.Post(() => ReconstructionStarted?.Invoke(this, EventArgs.Empty));
+                            {
+                                var floorClipPlane = bodyFrame.FloorClipPlane;
+                                syncContext.Post(() => OnReconstructionStarted(floorClipPlane));
+                            }
                         }
 
                         if (IsReconstructing)
@@ -149,6 +154,14 @@ namespace BodyScanner
             {
                 syncProcessing.Exit();
             }
+        }
+
+        #region Reconstruction
+
+        private void OnReconstructionStarted(Vector4 floorClipPlane)
+        {
+            FloorNormal = new Vector3 { X = floorClipPlane.X, Y = floorClipPlane.Y, Z = floorClipPlane.Z };
+            ReconstructionStarted?.Invoke(this, EventArgs.Empty);
         }
 
         public float LastFrameAlignmentEnergy => alignmentEnergy;
@@ -197,6 +210,10 @@ namespace BodyScanner
             {
             }
         }
+
+        #endregion
+
+        #region Body procesing
 
         private void SelectBodyToReconstruct(BodyFrame bodyFrame)
         {
@@ -257,5 +274,7 @@ namespace BodyScanner
                 }
             }
         }
+
+        #endregion
     }
 }
