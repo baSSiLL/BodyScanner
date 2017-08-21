@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Media3D;
 
 namespace BodyScanner
 {
@@ -39,6 +39,9 @@ namespace BodyScanner
                 case nameof(AppViewModel.ScanBitmapBgra):
                     UpdateScanBitmap();
                     break;
+                case nameof(AppViewModel.Body3DModel):
+                    SetupViewportTransforms();
+                    break;
             }
         }
 
@@ -72,6 +75,28 @@ namespace BodyScanner
             {
                 image.Source = holder.Bitmap;
             }
+        }
+
+        private void SetupViewportTransforms()
+        {
+            var geometry = ViewModel.Body3DModel;
+            if (geometry == null)
+                return;
+
+            var center = new Vector3D(
+                (geometry.Bounds.X + geometry.Bounds.SizeX) / 2,
+                0,
+                (geometry.Bounds.Z + geometry.Bounds.SizeZ) / 2);
+            var translate = new TranslateTransform3D(-center);
+
+            var rotation = new AxisAngleRotation3D(new Vector3D(0, 1, 0), 0);
+            var animation = (AnimationTimeline)FindResource("AngleAnimation");
+            rotation.BeginAnimation(AxisAngleRotation3D.AngleProperty, animation);
+            var rotate = new RotateTransform3D(rotation);
+            model.Transform = new Transform3DGroup
+            {
+                Children = { translate, rotate }
+            };
         }
     }
 }

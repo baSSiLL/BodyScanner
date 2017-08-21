@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media.Media3D;
 
 namespace BodyScanner
 {
@@ -64,12 +65,17 @@ namespace BodyScanner
                 throw new InvalidOperationException("Cannot start scanning");
 
             IsScanning = true;
+            Body3DModel = null;
+            ShowDepthBitmap = true;
             Prompt = Properties.Resources.PromptToBeginScan;
 
             try
             {
                 await engine.Run();
                 Prompt = Properties.Resources.PromptScanCompleted;
+                Body3DModel = engine.ScannedMesh == null
+                    ? null
+                    : MeshConverter.Convert(engine.ScannedMesh);
             }
             catch (ApplicationException ex)
             {
@@ -78,7 +84,10 @@ namespace BodyScanner
             }
 
             ShowScanBitmap = false;
-            ShowDepthBitmap = true;
+            if (Body3DModel == null)
+            {
+                ShowDepthBitmap = true;
+            }
             IsScanning = false;
 
             await Task.Delay(TimeSpan.FromSeconds(5));
@@ -134,6 +143,18 @@ namespace BodyScanner
         }
         private string scanningStatus;
 
+        public MeshGeometry3D Body3DModel
+        {
+            get { return body3DModel; }
+            private set { SetPropertyValue(value, ref body3DModel); }
+        }
+        private MeshGeometry3D body3DModel;
+
+        public bool ShowBodyModel
+        {
+            get { return Body3DModel != null; }
+        }
+
         private void Engine_ScanStarted(object sender, EventArgs e)
         {
             ShowDepthBitmap = false;
@@ -163,6 +184,9 @@ namespace BodyScanner
                 case nameof(PersonName):
                 case nameof(IsScanning):
                     startScanningCommand.InvalidateCanExecute();
+                    break;
+                case nameof(Body3DModel):
+                    OnPropertyChanged(nameof(ShowBodyModel));
                     break;
             }
         }

@@ -12,6 +12,11 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="VcBoolVis"/>
         <local:BooleanToObjectConverter x:Key="VcBoolInv" FalseValue="True" TrueValue="False"/>
+
+        <DoubleAnimationUsingKeyFrames x:Key="AngleAnimation" RepeatBehavior="Forever">
+            <DiscreteDoubleKeyFrame Value="0" KeyTime="0:0:0"/>
+            <LinearDoubleKeyFrame Value="360" KeyTime="0:0:5"/>
+        </DoubleAnimationUsingKeyFrames>
     </Window.Resources>
     
     <DockPanel>
@@ -46,6 +51,31 @@
                 <Image Name="scanImage" x:FieldModifier="private"
                        Stretch="Uniform"
                        Visibility="{Binding ShowScanBitmap, Converter={StaticResource VcBoolVis}}"/>
+                <Viewport3D Visibility="{Binding ShowBodyModel}">
+                    <Viewport3D.Camera>
+                        <PerspectiveCamera LookDirection="0,0,1" 
+                                           UpDirection="0,-1,0" 
+                                           Position="0,0,-5" 
+                                           FieldOfView="60"/>
+                    </Viewport3D.Camera>
+                    <ModelVisual3D>
+                        <ModelVisual3D.Content>
+                            <Model3DGroup>
+                                <DirectionalLight Color="White" Direction="3,-4,5" />
+                                <GeometryModel3D x:Name="model" x:FieldModifier="private"
+                                                 Geometry="{Binding Body3DModel}">
+                                    <GeometryModel3D.Material>
+                                        <DiffuseMaterial>
+                                            <DiffuseMaterial.Brush>
+                                                <SolidColorBrush Color="White"/>
+                                            </DiffuseMaterial.Brush>
+                                        </DiffuseMaterial>
+                                    </GeometryModel3D.Material>
+                                </GeometryModel3D>
+                            </Model3DGroup>
+                        </ModelVisual3D.Content>
+                    </ModelVisual3D>
+                </Viewport3D>
                 <TextBlock FontSize="18" Background="White" Foreground="Black"
                            HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="10"
                            Text="{Binding ScanningStatus}"/>

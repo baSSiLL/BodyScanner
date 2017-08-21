@@ -1,7 +1,6 @@
 ﻿using Microsoft.Kinect;
 using Microsoft.Kinect.Fusion;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
@@ -16,6 +15,7 @@ namespace BodyScanner
 
         private readonly SynchronizationContext syncContext;
         private readonly SharedCriticalSection syncProcessing = new SharedCriticalSection();
+        private bool isDisposed;
 
         private readonly KinectSensor sensor;
         private MultiSourceFrameReader reader;
@@ -64,15 +64,20 @@ namespace BodyScanner
 
         public void Dispose()
         {
-            syncProcessing.Enter();
+            if (!isDisposed)
+            {
+                syncProcessing.Enter();
 
-            reader?.Dispose();
+                isDisposed = true;
 
-            floatDepthFrame?.Dispose();
-            pointCloudFrame?.Dispose();
-            surfaceFrame?.Dispose();
+                reader?.Dispose();
 
-            reconstruction?.Dispose();
+                floatDepthFrame?.Dispose();
+                pointCloudFrame?.Dispose();
+                surfaceFrame?.Dispose();
+
+                reconstruction?.Dispose();
+            }
         }
 
         public event EventHandler ReconstructionStarted;
@@ -89,6 +94,11 @@ namespace BodyScanner
         {
             reader = sensor.OpenMultiSourceFrameReader(FrameSourceTypes.Depth | FrameSourceTypes.Body | FrameSourceTypes.BodyIndex);
             reader.MultiSourceFrameArrived += Reader_MultiSourceFrameArrived;
+        }
+
+        public Mesh GetBodyMesh()
+        {
+            return reconstruction.CalculateMesh(1);
         }
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)

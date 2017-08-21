@@ -1,4 +1,5 @@
 ﻿using Microsoft.Kinect;
+using Microsoft.Kinect.Fusion;
 using System;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ namespace BodyScanner
 {
     internal class ScanningEngine
     {
+        private static readonly TimeSpan SCAN_DURATION = TimeSpan.FromSeconds(10);
+
         private readonly KinectSensor sensor;
         private readonly Func<ReconstructionController> controllerFactory;
         private DateTime scanEndTime;
@@ -29,6 +32,8 @@ namespace BodyScanner
         public int ScannedFramesCount { get; private set; }
 
         public float LastAlignmentEnergy { get; private set; }
+
+        public Mesh ScannedMesh { get; private set; }
 
         public event EventHandler ScanUpdated;
 
@@ -66,16 +71,19 @@ namespace BodyScanner
                 scanEndTime = DateTime.MaxValue;
                 controller.Start();
 
+                // TODO: Should check for various sides of scanning instead
                 while (DateTime.UtcNow < scanEndTime)
                 {
                     await Task.Delay(1000);
                 }
+
+                ScannedMesh = controller.GetBodyMesh();
             }
         }
 
         private void Controller_ReconstructionStarted(object sender, EventArgs e)
         {
-            scanEndTime = DateTime.UtcNow.AddSeconds(5);
+            scanEndTime = DateTime.UtcNow.Add(SCAN_DURATION);
 
             ScanStarted?.Invoke(this, EventArgs.Empty);
         }
