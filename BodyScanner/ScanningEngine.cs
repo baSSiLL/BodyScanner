@@ -9,6 +9,7 @@ namespace BodyScanner
     {
         private readonly KinectSensor sensor;
         private readonly Func<ReconstructionController> controllerFactory;
+        private DateTime scanEndTime;
 
         public ScanningEngine(KinectSensor sensor, Func<ReconstructionController> controllerFactory)
         {
@@ -31,8 +32,10 @@ namespace BodyScanner
 
         public event EventHandler ScanUpdated;
 
+        public event EventHandler ScanStarted;
 
-        public async Task Scan()
+
+        public async Task Run()
         {
             if (!sensor.IsAvailable)
                 throw new ApplicationException(Properties.Resources.KinectNotAvailable);
@@ -58,9 +61,23 @@ namespace BodyScanner
 
                 controller.SurfaceBitmapUpdated += (_, __) => RaiseScanUpdated();
                 controller.FrameAligned += Controller_FrameAligned;
+                controller.ReconstructionStarted += Controller_ReconstructionStarted;
 
-                await Task.Delay(5000);
+                scanEndTime = DateTime.MaxValue;
+                controller.Start();
+
+                while (DateTime.UtcNow < scanEndTime)
+                {
+                    await Task.Delay(1000);
+                }
             }
+        }
+
+        private void Controller_ReconstructionStarted(object sender, EventArgs e)
+        {
+            scanEndTime = DateTime.UtcNow.AddSeconds(5);
+
+            ScanStarted?.Invoke(this, EventArgs.Empty);
         }
 
         private void Controller_FrameAligned(object sender, EventArgs e)

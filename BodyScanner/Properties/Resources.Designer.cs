@@ -99,7 +99,7 @@ namespace BodyScanner.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please enter your name to start the scanning.
+        ///   Looks up a localized string similar to Please enter your name before scanning.
         /// </summary>
         internal static string PromptEnterName {
             get {
@@ -113,15 +113,6 @@ namespace BodyScanner.Properties {
         internal static string PromptScanAborted {
             get {
                 return ResourceManager.GetString("PromptScanAborted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Stand in front of the sensor. Scanning begins in {0} seconds.
-        /// </summary>
-        internal static string PromptScanBeginsIn {
-            get {
-                return ResourceManager.GetString("PromptScanBeginsIn", resourceCulture);
             }
         }
         
@@ -140,6 +131,15 @@ namespace BodyScanner.Properties {
         internal static string PromptScanning {
             get {
                 return ResourceManager.GetString("PromptScanning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stand in front of the sensor at about 2.5m distance to begin scanning.
+        /// </summary>
+        internal static string PromptToBeginScan {
+            get {
+                return ResourceManager.GetString("PromptToBeginScan", resourceCulture);
             }
         }
         

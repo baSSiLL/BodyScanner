@@ -132,13 +132,13 @@
     <value>Kinect sensor is not available.</value>
   </data>
   <data name="PromptEnterName" xml:space="preserve">
-    <value>Please enter your name to start the scanning</value>
+    <value>Please enter your name before scanning</value>
   </data>
   <data name="PromptScanAborted" xml:space="preserve">
     <value>Scanning aborted</value>
   </data>
-  <data name="PromptScanBeginsIn" xml:space="preserve">
-    <value>Stand in front of the sensor. Scanning begins in {0} seconds</value>
+  <data name="PromptToBeginScan" xml:space="preserve">
+    <value>Stand in front of the sensor at about 2.5m distance to begin scanning</value>
   </data>
   <data name="PromptScanCompleted" xml:space="preserve">
     <value>Scanning completed</value>

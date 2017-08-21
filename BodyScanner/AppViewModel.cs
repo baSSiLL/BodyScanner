@@ -27,6 +27,7 @@ namespace BodyScanner
             ShowDepthBitmap = true;
 
             renderer.BitmapUpdated += Renderer_BitmapUpdated;
+            engine.ScanStarted += Engine_ScanStarted;
             engine.ScanUpdated += Engine_ScanUpdated;
         }
 
@@ -63,17 +64,11 @@ namespace BodyScanner
                 throw new InvalidOperationException("Cannot start scanning");
 
             IsScanning = true;
-
-            await AwaitForStart(2);
-
-            ShowDepthBitmap = false;
-            ShowScanBitmap = true;
-            ScanningStatus = null;
-            Prompt = Properties.Resources.PromptScanning;
+            Prompt = Properties.Resources.PromptToBeginScan;
 
             try
             {
-                await engine.Scan();
+                await engine.Run();
                 Prompt = Properties.Resources.PromptScanCompleted;
             }
             catch (ApplicationException ex)
@@ -98,16 +93,6 @@ namespace BodyScanner
         private bool CanStartScanning()
         {
             return !isScanning && !string.IsNullOrWhiteSpace(PersonName);
-        }
-
-
-        private async Task AwaitForStart(int startDelayInSeconds)
-        {
-            do
-            {
-                Prompt = string.Format(Properties.Resources.PromptScanBeginsIn, startDelayInSeconds);
-                await Task.Delay(1000);
-            } while (--startDelayInSeconds > 0);
         }
 
 
@@ -150,7 +135,21 @@ namespace BodyScanner
         }
         private string scanningStatus;
 
+        private void Engine_ScanStarted(object sender, EventArgs e)
+        {
+            ShowDepthBitmap = false;
+            ShowScanBitmap = true;
+            Prompt = Properties.Resources.PromptScanning;
+
+            OnScanUpdated();
+        }
+
         private void Engine_ScanUpdated(object sender, EventArgs e)
+        {
+            OnScanUpdated();
+        }
+
+        private void OnScanUpdated()
         {
             ScanningStatus = string.Format(Properties.Resources.ScanningStatus, engine.ScannedFramesCount, engine.LastAlignmentEnergy);
             OnPropertyChanged(nameof(ScanBitmapBgra));
