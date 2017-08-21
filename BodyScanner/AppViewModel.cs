@@ -103,15 +103,14 @@ namespace BodyScanner
         }
         private bool showDepthBitmap;
 
-        public Array DepthBitmapBgra => renderer.Bitmap;
-
-        public int DepthBitmapWidth => renderer.BitmapWidth;
-
-        public int DepthBitmapHeight => renderer.BitmapHeight;
+        public ThreadSafeBitmap DepthBitmap
+        {
+            get { return renderer.Bitmap; }
+        }
 
         private void Renderer_BitmapUpdated(object sender, EventArgs e)
         {
-            OnPropertyChanged(nameof(DepthBitmapBgra));
+            OnPropertyChanged(nameof(DepthBitmap));
         }
 
 

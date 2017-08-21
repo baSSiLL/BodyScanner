@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -32,7 +33,7 @@ namespace BodyScanner
         {
             switch (e.PropertyName)
             {
-                case nameof(AppViewModel.DepthBitmapBgra):
+                case nameof(AppViewModel.DepthBitmap):
                     UpdateDepthBitmap();
                     break;
                 case nameof(AppViewModel.ScanBitmapBgra):
@@ -43,14 +44,7 @@ namespace BodyScanner
 
         private void UpdateDepthBitmap()
         {
-            if (ViewModel.DepthBitmapBgra != null)
-            {
-                var changed = depthBitmapHolder.WritePixels(ViewModel.DepthBitmapWidth, ViewModel.DepthBitmapHeight, ViewModel.DepthBitmapBgra);
-                if (changed)
-                {
-                    depthImage.Source = depthBitmapHolder.Bitmap;
-                }
-            }
+            UpdateBitmap(ViewModel.DepthBitmap, depthBitmapHolder, depthImage);
         }
 
         private void UpdateScanBitmap()
@@ -62,6 +56,21 @@ namespace BodyScanner
                 {
                     scanImage.Source = scanBitmapHolder.Bitmap;
                 }
+            }
+        }
+
+        private void UpdateBitmap(ThreadSafeBitmap bitmap, WriteableBitmapHolder holder, Image image)
+        {
+            if (holder == null || bitmap == null)
+                return;
+
+            var changed = false;
+            bitmap.Access(bitmapData =>
+                changed = holder.WritePixels(bitmap.Width, bitmap.Height, bitmapData));
+
+            if (changed)
+            {
+                image.Source = holder.Bitmap;
             }
         }
     }

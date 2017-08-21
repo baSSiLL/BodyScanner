@@ -1,8 +1,10 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace BodyScanner
 {
@@ -22,21 +24,22 @@ namespace BodyScanner
             this.converter = converter;
 
             var depthFrameDesc = sensor.DepthFrameSource.FrameDescription;
-            BitmapWidth = depthFrameDesc.Width;
-            BitmapHeight = depthFrameDesc.Height;
-            var pixelCount = BitmapWidth * BitmapHeight;
+            var pixelCount = depthFrameDesc.Width * depthFrameDesc.Height;
             frameData = new ushort[pixelCount];
-            Bitmap = new byte[pixelCount * 4];
+            Bitmap = new ThreadSafeBitmap(depthFrameDesc.Width, depthFrameDesc.Height);
 
             reader = sensor.DepthFrameSource.OpenReader();
             reader.FrameArrived += Reader_FrameArrived;
         }
 
-        public byte[] Bitmap { get; }
+        public bool Mirror
+        {
+            get { return mirror; }
+            set { mirror = value; }
+        }
+        private volatile bool mirror;
 
-        public int BitmapWidth { get; }
-
-        public int BitmapHeight { get; }
+        public ThreadSafeBitmap Bitmap { get; }
 
         public event EventHandler BitmapUpdated;
 
@@ -51,24 +54,52 @@ namespace BodyScanner
             if (frame != null)
             {
                 using (frame)
+                {
                     frame.CopyFrameDataToArray(frameData);
+                }
 
-                Task.Run(new Action(FillBitmap)).
-                    ContinueWith(_ => syncContext.Post(RaiseBitmapUpdated));
+                var fillAction = mirror ? new Action<byte[]>(FillBitmap) : new Action<byte[]>(UnmirrorAndFillBitmap);
+                Task.Run(() => Bitmap.Access(fillAction)).
+                    ContinueWith(_ => AfterRender());
             }
         }
 
-        private void FillBitmap()
+        private void FillBitmap(byte[] bitmapData)
         {
             var iBitmap = 0;
             for (var iDepth = 0; iDepth < frameData.Length; iDepth++)
             {
                 var color = converter.Convert(frameData[iDepth]);
-                Bitmap[iBitmap++] = color.B;
-                Bitmap[iBitmap++] = color.G;
-                Bitmap[iBitmap++] = color.R;
-                Bitmap[iBitmap++] = color.A;
+                WritePixel(bitmapData, ref iBitmap, ref color);
             }
+        }
+
+        private void UnmirrorAndFillBitmap(byte[] bitmapData)
+        {
+            var iBitmap = 0;
+            while (iBitmap < bitmapData.Length)
+            {
+                var iDepth = iBitmap / 4 + Bitmap.Width - 1;
+                for (var x = 0; x < Bitmap.Width; x++)
+                {
+                    var color = converter.Convert(frameData[iDepth--]);
+                    WritePixel(bitmapData, ref iBitmap, ref color);
+                }
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void WritePixel(byte[] bitmapData, ref int iBitmap, ref Color color)
+        {
+            bitmapData[iBitmap++] = color.B;
+            bitmapData[iBitmap++] = color.G;
+            bitmapData[iBitmap++] = color.R;
+            bitmapData[iBitmap++] = color.A;
+        }
+
+        private void AfterRender()
+        {
+            syncContext.Post(RaiseBitmapUpdated);
         }
     }
 }

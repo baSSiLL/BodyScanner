@@ -74,6 +74,7 @@
     <Compile Include="ScanningEngine.cs" />
     <Compile Include="SharedCriticalSection.cs" />
     <Compile Include="SynchronizationContextExtensions.cs" />
+    <Compile Include="ThreadSafeBitmap.cs" />
     <Compile Include="UserInteractionService.cs" />
     <Compile Include="ViewModelBase.cs" />
     <Compile Include="WriteableBitmapHolder.cs" />

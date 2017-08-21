@@ -14,9 +14,7 @@ namespace BodyScanner
             var bitmapChanged = EnsureBitmapSize(width, height);
 
             var rect = new Int32Rect(0, 0, width, height);
-            Bitmap.Lock();
             Bitmap.WritePixels(rect, data, width * Bitmap.Format.BitsPerPixel / 8, 0);
-            Bitmap.Unlock();
 
             return bitmapChanged;
         }
