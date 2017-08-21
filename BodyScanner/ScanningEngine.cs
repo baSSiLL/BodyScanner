@@ -23,11 +23,7 @@ namespace BodyScanner
             this.controllerFactory = controllerFactory;
         }
 
-        public int[] ScanBitmap { get; private set; }
-
-        public int ScanBitmapWidth { get; private set; }
-
-        public int ScanBitmapHeight { get; private set; }
+        public ThreadSafeBitmap ScanBitmap { get; private set; }
 
         public int ScannedFramesCount { get; private set; }
 
@@ -60,8 +56,6 @@ namespace BodyScanner
                 ScannedFramesCount = 0;
                 LastAlignmentEnergy = 0;
                 ScanBitmap = controller.SurfaceBitmap;
-                ScanBitmapWidth = controller.SurfaceBitmapWidth;
-                ScanBitmapHeight = controller.SurfaceBitmapHeight;
                 RaiseScanUpdated();
 
                 controller.SurfaceBitmapUpdated += (_, __) => RaiseScanUpdated();

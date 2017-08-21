@@ -36,7 +36,7 @@ namespace BodyScanner
                 case nameof(AppViewModel.DepthBitmap):
                     UpdateDepthBitmap();
                     break;
-                case nameof(AppViewModel.ScanBitmapBgra):
+                case nameof(AppViewModel.ScanBitmap):
                     UpdateScanBitmap();
                     break;
                 case nameof(AppViewModel.Body3DModel):
@@ -52,14 +52,7 @@ namespace BodyScanner
 
         private void UpdateScanBitmap()
         {
-            if (ViewModel.ScanBitmapBgra != null)
-            {
-                var changed = scanBitmapHolder.WritePixels(ViewModel.ScanBitmapWidth, ViewModel.ScanBitmapHeight, ViewModel.ScanBitmapBgra);
-                if (changed)
-                {
-                    scanImage.Source = scanBitmapHolder.Bitmap;
-                }
-            }
+            UpdateBitmap(ViewModel.ScanBitmap, scanBitmapHolder, scanImage);
         }
 
         private void UpdateBitmap(ThreadSafeBitmap bitmap, WriteableBitmapHolder holder, Image image)

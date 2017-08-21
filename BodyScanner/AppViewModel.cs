@@ -130,11 +130,7 @@ namespace BodyScanner
         }
         private bool showScanBitmap;
 
-        public Array ScanBitmapBgra => engine.ScanBitmap;
-
-        public int ScanBitmapWidth => engine.ScanBitmapWidth;
-
-        public int ScanBitmapHeight => engine.ScanBitmapHeight;
+        public ThreadSafeBitmap ScanBitmap => engine.ScanBitmap;
 
         public string ScanningStatus
         {
@@ -172,7 +168,7 @@ namespace BodyScanner
         private void OnScanUpdated()
         {
             ScanningStatus = string.Format(Properties.Resources.ScanningStatus, engine.ScannedFramesCount, engine.LastAlignmentEnergy);
-            OnPropertyChanged(nameof(ScanBitmapBgra));
+            OnPropertyChanged(nameof(ScanBitmap));
         }
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)

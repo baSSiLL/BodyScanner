@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BodyScanner
 {
     class ThreadSafeBitmap
     {
         private readonly object sync = new object();
-        private readonly byte[] data;
+        private readonly int[] data;
 
         public ThreadSafeBitmap(int width, int height)
         {
@@ -18,13 +14,13 @@ namespace BodyScanner
 
             Width = width;
             Height = height;
-            data = new byte[width * height * 4];
+            data = new int[width * height];
         }
 
         public int Width { get; }
         public int Height { get; }
 
-        public void Access(Action<byte[]> accessor)
+        public void Access(Action<int[]> accessor)
         {
             Contract.Requires(accessor != null);
 

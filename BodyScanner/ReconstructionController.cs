@@ -47,16 +47,14 @@ namespace BodyScanner
             var totalPixels = depthFrameDesc.Width * depthFrameDesc.Height;
             rawDepthData = new ushort[totalPixels];
             bodyIndexData = new byte[totalPixels];
-            SurfaceBitmap = new int[totalPixels];
-            SurfaceBitmapWidth = depthFrameDesc.Width;
-            SurfaceBitmapHeight = depthFrameDesc.Height;
+            SurfaceBitmap = new ThreadSafeBitmap(depthFrameDesc.Width, depthFrameDesc.Height);
 
             var intrinsics = sensor.CoordinateMapper.GetDepthCameraIntrinsics();
             var cparams = new CameraParameters(
-                intrinsics.FocalLengthX / SurfaceBitmapWidth, 
-                intrinsics.FocalLengthY / SurfaceBitmapHeight, 
-                intrinsics.PrincipalPointX / SurfaceBitmapWidth, 
-                intrinsics.PrincipalPointY / SurfaceBitmapHeight);
+                intrinsics.FocalLengthX / depthFrameDesc.Width, 
+                intrinsics.FocalLengthY / depthFrameDesc.Height, 
+                intrinsics.PrincipalPointX / depthFrameDesc.Width, 
+                intrinsics.PrincipalPointY / depthFrameDesc.Height);
             floatDepthFrame = new FusionFloatImageFrame(depthFrameDesc.Width, depthFrameDesc.Height, cparams);
             pointCloudFrame = new FusionPointCloudImageFrame(depthFrameDesc.Width, depthFrameDesc.Height, cparams);
             surfaceFrame = new FusionColorImageFrame(depthFrameDesc.Width, depthFrameDesc.Height, cparams);
@@ -82,11 +80,7 @@ namespace BodyScanner
 
         public event EventHandler ReconstructionStarted;
 
-        public int[] SurfaceBitmap { get; }
-
-        public int SurfaceBitmapWidth { get; }
-
-        public int SurfaceBitmapHeight { get; }
+        public ThreadSafeBitmap SurfaceBitmap { get; }
 
         public event EventHandler SurfaceBitmapUpdated;
 
@@ -195,7 +189,7 @@ namespace BodyScanner
                 reconstruction.CalculatePointCloud(pointCloudFrame, worldToCameraTransform);
 
                 FusionDepthProcessor.ShadePointCloud(pointCloudFrame, worldToCameraTransform, surfaceFrame, null);
-                surfaceFrame.CopyPixelDataTo(SurfaceBitmap);
+                SurfaceBitmap.Access(data => surfaceFrame.CopyPixelDataTo(data));
 
                 syncContext.Post(() => SurfaceBitmapUpdated?.Invoke(this, EventArgs.Empty));
             }

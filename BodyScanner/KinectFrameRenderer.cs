@@ -58,43 +58,39 @@ namespace BodyScanner
                     frame.CopyFrameDataToArray(frameData);
                 }
 
-                var fillAction = mirror ? new Action<byte[]>(FillBitmap) : new Action<byte[]>(UnmirrorAndFillBitmap);
+                var fillAction = mirror ? new Action<int[]>(FillBitmap) : new Action<int[]>(UnmirrorAndFillBitmap);
                 Task.Run(() => Bitmap.Access(fillAction)).
                     ContinueWith(_ => AfterRender());
             }
         }
 
-        private void FillBitmap(byte[] bitmapData)
+        private void FillBitmap(int[] bitmapData)
         {
-            var iBitmap = 0;
-            for (var iDepth = 0; iDepth < frameData.Length; iDepth++)
+            for (int iDepth = 0, iBitmap = 0; iDepth < frameData.Length; iDepth++, iBitmap++)
             {
                 var color = converter.Convert(frameData[iDepth]);
-                WritePixel(bitmapData, ref iBitmap, ref color);
+                WritePixel(bitmapData, iBitmap, color);
             }
         }
 
-        private void UnmirrorAndFillBitmap(byte[] bitmapData)
+        private void UnmirrorAndFillBitmap(int[] bitmapData)
         {
             var iBitmap = 0;
             while (iBitmap < bitmapData.Length)
             {
-                var iDepth = iBitmap / 4 + Bitmap.Width - 1;
+                var iDepth = iBitmap + Bitmap.Width - 1;
                 for (var x = 0; x < Bitmap.Width; x++)
                 {
                     var color = converter.Convert(frameData[iDepth--]);
-                    WritePixel(bitmapData, ref iBitmap, ref color);
+                    WritePixel(bitmapData, iBitmap++, color);
                 }
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void WritePixel(byte[] bitmapData, ref int iBitmap, ref Color color)
+        private void WritePixel(int[] bitmapData, int iBitmap, Color color)
         {
-            bitmapData[iBitmap++] = color.B;
-            bitmapData[iBitmap++] = color.G;
-            bitmapData[iBitmap++] = color.R;
-            bitmapData[iBitmap++] = color.A;
+            bitmapData[iBitmap] = color.B + (color.G << 8) + (color.R << 16) + (color.A << 24);
         }
 
         private void AfterRender()
