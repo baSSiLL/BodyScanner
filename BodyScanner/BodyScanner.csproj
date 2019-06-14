@@ -69,6 +69,7 @@
     <Compile Include="BooleanToObjectConverter.cs" />
     <Compile Include="DepthToColorConverter.cs" />
     <Compile Include="KinectFrameRenderer.cs" />
+    <Compile Include="ModelIO.cs" />
     <Compile Include="MeshConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ReconstructionController.cs" />

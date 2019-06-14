@@ -150,4 +150,7 @@
     <value>Scanned frames: {0}
 Alignment energy: {1}</value>
   </data>
+  <data name="InvalidMeshArgument" xml:space="preserve">
+    <value>Supplied mesh contains invalid data</value>
+  </data>
 </root>

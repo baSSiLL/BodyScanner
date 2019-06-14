@@ -90,6 +90,15 @@ namespace BodyScanner.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Supplied mesh contains invalid data.
+        /// </summary>
+        internal static string InvalidMeshArgument {
+            get {
+                return ResourceManager.GetString("InvalidMeshArgument", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Kinect sensor is not available..
         /// </summary>
         internal static string KinectNotAvailable {

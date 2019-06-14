@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics.Contracts;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -23,6 +25,7 @@ namespace BodyScanner
             this.uis = uis;
 
             startScanningCommand = new DelegateCommand(DoScanning, CanStartScanning);
+            saveModelCommand = new DelegateCommand(SaveBodyModel, () => engine.ScannedMesh != null);
 
             Prompt = Properties.Resources.PromptEnterName;
             ShowDepthBitmap = true;
@@ -159,6 +162,49 @@ namespace BodyScanner
             get { return Body3DModel != null; }
         }
 
+        public ICommand SaveModelCommand => saveModelCommand;
+        private readonly DelegateCommand saveModelCommand;
+
+        private void SaveBodyModel()
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = "Save Model",
+                Filter = "Wavefront OBJ|*.obj|STL (binary)|*.stl|PLY (text)|*.ply",
+                FilterIndex = 0,
+                DefaultExt = ".obj"
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                var flipAxes = true;
+                switch (Path.GetExtension(dialog.FileName).ToLowerInvariant())
+                {
+                    case ".obj":
+                        using (var writer = File.CreateText(dialog.FileName))
+                        {
+                            ModelIO.SaveAsciiObjMesh(engine.ScannedMesh, writer, flipAxes);
+                        }
+                        break;
+                    case ".stl":
+                        using (var file = File.Create(dialog.FileName))
+                        using (var writer = new BinaryWriter(file))
+                        {
+                            ModelIO.SaveBinaryStlMesh(engine.ScannedMesh, writer, flipAxes);
+                        }
+                        break;
+                    case ".ply":
+                        using (var writer = File.CreateText(dialog.FileName))
+                        {
+                            ModelIO.SaveAsciiPlyMesh(engine.ScannedMesh, writer, flipAxes);
+                        }
+                        break;
+                    default:
+                        uis.ShowError("Unsupported file format");
+                        break;
+                }
+            }
+        }
+
         private void Engine_ScanStarted(object sender, EventArgs e)
         {
             ShowDepthBitmap = false;
@@ -191,6 +237,7 @@ namespace BodyScanner
                     break;
                 case nameof(Body3DModel):
                     OnPropertyChanged(nameof(ShowBodyModel));
+                    saveModelCommand.InvalidateCanExecute();
                     break;
             }
         }
